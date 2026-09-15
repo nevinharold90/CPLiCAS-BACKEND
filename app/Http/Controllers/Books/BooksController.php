@@ -25,7 +25,7 @@ class BooksController extends BaseController
             'bookClassification:id,book_id,dewey_decimal_id,book_type,cutter,year_published,category',
             'bookClassification.deweyDecimal:id,dd_number,dd_name'
         ])
-        ->get(['id', 'title', 'image_url', 'isbn']);
+        ->get(['id', 'title', 'cover_image', 'isbn']);
 
         $books->each(function ($book) {
             // Hide pivot metadata on authors
@@ -56,12 +56,12 @@ class BooksController extends BaseController
         $validator = Validator::make($request->all(), [
             'title'                => 'required|string|max:255',
             'isbn'                 => 'required|string|unique:books,isbn',
-            'image_url'            => 'nullable|string',
+            'cover_image'          => 'nullable|string',
             'summary'              => 'nullable|string',
             'description'          => 'nullable|string',
             'author_ids'           => 'required|array|min:1',
             'author_ids.*'         => 'required|string',
-            'book_type'            => 'required|in:fiction,non-fiction',
+            'book_type'            => 'required|string',
 
             // Required ONLY for non-fiction, optional/nullable for fiction
             'dewey_decimal_id'     => 'required_if:book_type,non-fiction|nullable|exists:dewey_decimals,id',
@@ -109,7 +109,7 @@ class BooksController extends BaseController
                     'users_id'    => $userId,
                     'title'       => $request->title,
                     'isbn'        => $request->isbn,
-                    'image_url'   => $request->image_url,
+                    'cover_image' => $request->cover_image,
                     'summary'     => $request->summary,
                     'description' => $request->description,
                 ]);

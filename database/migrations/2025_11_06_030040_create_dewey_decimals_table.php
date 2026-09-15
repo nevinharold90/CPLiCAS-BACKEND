@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('dewey_decimals', function (Blueprint $table) {
             $table->id();
-            $table->string('dd_number');
-            $table->string('dd_name');
+            $table->string('dewey_number')->unique();
+            $table->string('class_name');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

@@ -4,7 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage; // Added missing import
 
 class Book extends Model
 {
@@ -13,73 +17,50 @@ class Book extends Model
     protected $fillable = [
         'users_id',
         'title',
-        'image_url',
+        'cover_image',
         'isbn',
         'summary',
         'description',
-
     ];
 
+    protected $appends = ['image_url'];
 
-    public function bookAuthor()
+    /**
+     * Automatically appends the public URL for cover_image to JSON responses.
+     */
+    public function getImageUrlAttribute(): ?string
     {
-        return $this->belongsToMany(BookAuthor::class, 'book_authors', 'book_id', 'author_id');
+        return $this->cover_image ? asset(Storage::url($this->cover_image)) : null;
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        // Aligned with 'users_id' from your $fillable array
+        return $this->belongsTo(User::class, 'users_id');
     }
 
     public function authors(): BelongsToMany
-        {
-            return $this->belongsToMany(
-                Author::class,
-                'book_authors', // pivot table name
-                'book_id',      // foreign key on pivot table
-                'author_id'     // foreign key on author table
-            );
-        }
+    {
+        return $this->belongsToMany(
+            Author::class,
+            'book_authors', // pivot table name
+            'book_id',      // foreign key on pivot table
+            'author_id'     // foreign key on author table
+        );
+    }
 
-    public function bookClassification()
+    public function bookClassification(): HasOne
     {
         return $this->hasOne(BookClassification::class, 'book_id');
     }
-    public function readSession()
+
+    public function readSession(): HasMany
     {
         return $this->hasMany(ReadSession::class);
     }
 
-    public function bookCopy()
+    public function bookCopy(): HasMany
     {
         return $this->hasMany(BookCopy::class, 'book_id');
     }
-
-    // public function bookCover()
-    // {
-    //     return $this->hasMany(BookCover::class);
-    // }
-
-    // public function readBorrowersCard()
-    // {
-    //     return $this->hasMany(ReadBorrowersCard::class);
-    // }
-
-
-    // public function callNumber()
-    // {
-    //     return $this->belongsTo(CallNumber::class);
-    // }
-
-    // public function readWalkIn()
-    // {
-    //     return $this->hasMany(ReadWalkIn::class);
-    // }
-
-// Sample
-    // public function qrBookImages()
-    // {
-    //     return $this->hasMany(QrBookImage::class);
-    // }
-
 }

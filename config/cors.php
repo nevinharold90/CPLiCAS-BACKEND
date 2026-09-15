@@ -8,10 +8,12 @@ return [
 
     // Specify your Vite frontend URL (do NOT use '*')
     'allowed_origins' => [
+        'http://192.168.0.140:5173',
         'http://localhost:5173',
         'http://127.0.0.1:5173',
-        'http://192.168.0.112:5173',
-        'http://192.168.0.112:5174',
+        'http://localhost:5174',
+        // 'http://192.168.0.112:5174',
+        // 'http://192.168.0.112:5174',
         'http://172.25.43.106:3000',
         'http://localhost:3000',
     ],

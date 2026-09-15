@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class DeweyDecimal extends Model
 {
     protected $fillable = [
-        'dd_number',
-        'dd_name'
+        'dewey_number',
+        'class_name',
+        'description'
     ];
 
     public function bookClassification()
