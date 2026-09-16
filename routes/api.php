@@ -38,9 +38,11 @@ use Illuminate\Http\Request;
         Route::post('book/author/register', [AuthorController::class, 'authorRegister']);
         Route::get('book/author/index', [AuthorController::class, 'authorIndex']);
 
-
-        Route::post('book/dewey-decimal/batch-import', [DeweyDecimalController::class, 'batchImport']);
-        Route::post('book/dewey-decimal/callnumber-register', [DeweyDecimalController::class, 'callnumberRegister']);
+        // Dewey Decimal Routes
+            Route::get('/dewey/search', [DeweyDecimalController::class, 'search']);
+            Route::post('book/dewey-decimal/batch-import', [DeweyDecimalController::class, 'batchImport']);
+            Route::post('book/dewey-decimal/callnumber-register', [DeweyDecimalController::class, 'callnumberRegister']);
+        // Dewey Decimal Routes
     // Books Route
 
 
