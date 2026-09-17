@@ -55,7 +55,9 @@ class BooksController extends BaseController
         // 1. Validate incoming data
         $validator = Validator::make($request->all(), [
             'title'                => 'required|string|max:255',
-            'isbn'                 => 'required|string|unique:books,isbn',
+            'isbn13'               => 'nullable|string|max:17|unique:books,isbn13',
+            'isbn11'               => 'nullable|string|max:15',
+            'issn'                 => 'nullable|string|max:10',
             'cover_image'          => 'nullable|string',
             'summary'              => 'nullable|string',
             'description'          => 'nullable|string',
@@ -72,12 +74,12 @@ class BooksController extends BaseController
             'category'             => 'required|string',
             'place_of_publication' => 'required|string',
 
-            'material_type'        => 'nullable|string', // Changed to nullable so fallbacks work
-            'source_of_fund'       => 'nullable|string', // Changed to nullable so fallbacks work
-            'condition'            => 'nullable|string', // Changed to nullable so fallbacks work
+            'material_type'        => 'nullable|string',
+            'source_of_fund'       => 'nullable|string',
+            'condition'            => 'nullable|string',
             'number_of_copies'     => 'nullable|integer|min:1',
-        ],[
-            'isbn.unique' => 'The book already exists in the database.' // <- Error if same ISBN
+        ], [
+            'isbn13.unique' => 'A book with this ISBN-13 already exists in the database.'
         ]);
 
         // Handle authentication resolution early
@@ -101,14 +103,16 @@ class BooksController extends BaseController
         }
 
         try {
-            // 2. Perform database transaction (Pass $userId into the scope)
+            // 2. Perform database transaction
             $response = DB::transaction(function () use ($request, $userId) {
 
                 // A. Save Main Book Record
                 $book = Book::create([
                     'users_id'    => $userId,
                     'title'       => $request->title,
-                    'isbn'        => $request->isbn,
+                    'isbn13'      => $request->isbn13,
+                    'isbn11'      => $request->isbn11,
+                    'issn'        => $request->issn,
                     'cover_image' => $request->cover_image,
                     'summary'     => $request->summary,
                     'description' => $request->description,
@@ -169,7 +173,7 @@ class BooksController extends BaseController
                         'book_id'             => $book->id,
                         'barcode_data'        => $barcodeData,
                         'qrcode_data'         => $qrCodeData,
-                        'location'             => $request->location,
+                        'location'            => $request->location,
                         'accession_number_id' => $accessionNumber,
                         'status'              => 'available',
                         'source_of_fund'      => $request->source_of_fund ?? 'Purchased',

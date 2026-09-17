@@ -18,7 +18,8 @@ class Book extends Model
         'users_id',
         'title',
         'cover_image',
-        'isbn',
+        'isbn11',
+        'isbn13',
         'summary',
         'description',
     ];

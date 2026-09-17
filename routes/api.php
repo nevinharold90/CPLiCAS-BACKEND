@@ -9,6 +9,7 @@ use App\Http\Controllers\_Test\OnlineUsers;
 use App\Http\Controllers\Books\BooksController;
 use App\Http\Controllers\Books\AuthorController;
 use App\Http\Controllers\Books\DeweyDecimalController;
+use App\Http\Controllers\Books\IsbnController;
 use Illuminate\Http\Request;
 // use App\Http\Controllers\Books\AuthorController;
 
@@ -37,6 +38,11 @@ use Illuminate\Http\Request;
 
         Route::post('book/author/register', [AuthorController::class, 'authorRegister']);
         Route::get('book/author/index', [AuthorController::class, 'authorIndex']);
+
+        // Start ISBN
+
+            Route::get('/books/search-isbn', [IsbnController::class, 'searchIsbn']);
+        // End ISBN
 
         // Dewey Decimal Routes
             Route::get('/dewey/search', [DeweyDecimalController::class, 'search']);
