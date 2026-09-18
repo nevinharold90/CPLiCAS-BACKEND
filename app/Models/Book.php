@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\Storage; // Added missing import
+use Illuminate\Support\Facades\Storage;
 
 class Book extends Model
 {
@@ -20,24 +20,31 @@ class Book extends Model
         'cover_image',
         'isbn11',
         'isbn13',
+        'issn',
         'summary',
         'description',
     ];
 
-    protected $appends = ['image_url'];
-
     /**
-     * Automatically appends the public URL for cover_image to JSON responses.
+     * Accessor to return full URL if cover_image stores a relative storage path.
      */
-    public function getImageUrlAttribute(): ?string
+    protected function imageUrl(): Attribute
     {
-        return $this->cover_image ? asset(Storage::url($this->cover_image)) : null;
-    }
+        return Attribute::make(
+            get: function (?string $value) {
+                if (!$value) {
+                    return null;
+                }
 
-    public function user(): BelongsTo
-    {
-        // Aligned with 'users_id' from your $fillable array
-        return $this->belongsTo(User::class, 'users_id');
+                // If already a full URL (http/https), return as is
+                if (filter_var($value, FILTER_VALIDATE_URL)) {
+                    return $value;
+                }
+
+                // Convert relative path (e.g. "covers/abc.jpg") to full URL
+                return asset(Storage::url($value));
+            }
+        );
     }
 
     public function authors(): BelongsToMany
@@ -49,19 +56,23 @@ class Book extends Model
             'author_id'     // foreign key on author table
         );
     }
+public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id');
+    }
 
     public function bookClassification(): HasOne
     {
         return $this->hasOne(BookClassification::class, 'book_id');
     }
 
-    public function readSession(): HasMany
-    {
-        return $this->hasMany(ReadSession::class);
-    }
-
-    public function bookCopy(): HasMany
+    public function bookCopies(): HasMany
     {
         return $this->hasMany(BookCopy::class, 'book_id');
+    }
+
+    public function readSessions(): HasMany
+    {
+        return $this->hasMany(ReadSession::class, 'book_id');
     }
 }

@@ -18,23 +18,36 @@ class BookClassification extends Model
         'place_of_publication'
     ];
 
-    public function book()
+    /**
+     * Append dynamic attributes to JSON responses.
+     */
+    protected $appends = [
+        'call_number',
+    ];
+
+    public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class, 'book_id');
     }
 
-    public function deweyDecimal()
+    public function deweyDecimal(): BelongsTo
     {
         return $this->belongsTo(DeweyDecimal::class, 'dewey_decimal_id');
     }
 
+    /**
+     * Compute the standardized Call Number.
+     */
     protected function callNumber(): Attribute
     {
         return Attribute::make(
             get: function () {
-                $prefix = strtolower($this->book_type) === 'fiction'
-                    ? 'F' // Use 'FIC' or 'F/FIC' depending on your standard
-                    : optional($this->deweyDecimal)->dd_number;
+                $isFiction = strtolower(trim($this->book_type ?? '')) === 'fiction';
+
+                // Fixed: Matched ERD column 'dewey_number'
+                $prefix = $isFiction
+                    ? 'F'
+                    : ($this->deweyDecimal?->dewey_number ?? '');
 
                 return trim("{$prefix} {$this->cutter} {$this->year_published}");
             }
